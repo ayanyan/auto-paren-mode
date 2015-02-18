@@ -64,7 +64,7 @@
 
 ;;; Code:
 
-(defvar auto-paren-on-word t
+(defvar auto-paren-on-word nil
   "If nil, the automatic insertion is inhibited before or inside
 a word in Auto Paren minor mode.")
 
@@ -102,10 +102,10 @@ a word in Auto Paren minor mode.")
 (defvar auto-paren-matching-alist auto-paren-code-matching-alist)
 
 (defvar auto-paren-major-mode-alist
-  `((emacs-lisp-mode . ,auto-paren-lisp-matching-alist)
+  `((lisp-mode . ,auto-paren-lisp-matching-alist)
+    (emacs-lisp-mode . lisp-mode)
     (scheme-mode . lisp-mode)
     (common-lisp-mode . lisp-mode)
-    (lisp-mode . emacs-lisp-mode)
     (lisp-interaction-mode . emacs-lisp-mode)
     (sh-mode . ,auto-paren-code-matching-alist)
     (makefile-mode . sh-mode)
@@ -127,9 +127,9 @@ a word in Auto Paren minor mode.")
     (latex-mode . tex-mode)
     (bibtex-mode . tex-mode)
     (yatex-mode)
-    (sgml-mode . ,auto-paren-xml-matching-alist)
+    (xml-mode . ,auto-paren-xml-matching-alist)
+    (sgml-mode . xml-mode)
     (html-mode . sgml-mode)
-    (xml-mode . sgml-mode)
     (psgml-mode . sgml-mode)
     (yahtml-mode)
     (fundamental-mode . text-mode)))
