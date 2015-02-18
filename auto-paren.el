@@ -23,6 +23,10 @@
 
 ;;; Commentary:
 
+;; A minor mode to help you to type parentheses.  When you type an
+;; opening parenthesis, a closing parenthesis is automatically
+;; inserted depending on the current major mode.
+;;
 ;; First, you need to load the file.  It is usual to write the
 ;; following code in your .emacs file.
 ;;
@@ -61,8 +65,8 @@
 ;;; Code:
 
 (defvar auto-paren-on-word t
-  "If nil, automatic insertion is inhibited before or inside a
-word in Auto Paren minor mode.")
+  "If nil, the automatic insertion is inhibited before or inside
+a word in Auto Paren minor mode.")
 
 (defconst auto-paren-lisp-matching-alist
   '((?\( . ?\))
