@@ -25,7 +25,8 @@
 
 ;; A minor mode to help you to type parentheses.  When you type an
 ;; opening parenthesis, a closing parenthesis is automatically
-;; inserted depending on the current major mode.
+;; inserted depending on the current major mode.  In Emacs 24.3 or
+;; later, Electric Pair mode is probably more useful.
 ;;
 ;; First, you need to load the file.  It is usual to write the
 ;; following code in your .emacs file.
@@ -68,6 +69,9 @@
   "If nil, the automatic insertion is inhibited before or inside
 a word in Auto Paren minor mode.")
 
+(defvar auto-paren-respect-syntax-table t
+  "If non-nil, the current syntax table is respected.")
+
 (defconst auto-paren-lisp-matching-alist
   '((?\( . ?\))
     (?\[ . ?\])
@@ -89,15 +93,19 @@ a word in Auto Paren minor mode.")
     (?\" . ?\")))
 
 (defconst auto-paren-tex-matching-alist
-  '((?\( . ?\))
-    (?\[ . ?\])
-    (?{ . ?})
-    (?\` . ?\')
-    (?$ . ?$)))
+  (append
+   '((?\[ . ?\])
+     (?{ . ?})
+     (?| . ?|)
+     (?$ . ?$))
+   auto-paren-text-matching-alist))
 
 (defconst auto-paren-xml-matching-alist
-  '((?< . ?>)
-    (?\" . ?\")))
+  (append
+   '((?< . ?>)
+     (?\" . ?\")
+     (?& . ?\;))
+   auto-paren-text-matching-alist))
 
 (defvar auto-paren-matching-alist auto-paren-code-matching-alist)
 
@@ -131,6 +139,7 @@ a word in Auto Paren minor mode.")
     (sgml-mode . xml-mode)
     (html-mode . sgml-mode)
     (psgml-mode . sgml-mode)
+    (nxml-mode . xml-mode)
     (yahtml-mode)
     (fundamental-mode . text-mode)))
 
@@ -140,13 +149,28 @@ a word in Auto Paren minor mode.")
 (unless auto-paren-mode-map
   (setq auto-paren-mode-map (make-sparse-keymap))
   (define-key auto-paren-mode-map "(" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map ")" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "[" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "]" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "{" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "}" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "<" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map ">" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "\"" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "`" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "'" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "\"" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "$" 'auto-paren-self-insert))
+  (define-key auto-paren-mode-map "|" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "$" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "&" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "@" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "#" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "%" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "^" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "*" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "+" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "=" 'auto-paren-self-insert))
 
 (defvar auto-paren-mode-hook nil)
 
@@ -169,6 +193,7 @@ parenthesis is inserted."
   auto-paren-mode-map
   (make-local-variable 'auto-paren-matching-alist)
   (make-local-variable 'auto-paren-on-word)
+  (make-local-variable 'auto-paren-respect-syntax-table)
   (let ((pair (rec-assoc major-mode auto-paren-major-mode-alist)))
     (if pair
         (setq auto-paren-matching-alist (cdr pair))
@@ -191,7 +216,14 @@ parenthesis is inserted."
       (call-interactively (key-binding (char-to-string last-command-event)))
       (auto-paren-mode (if now 1 0)))
     (unless escaped
-      (let ((pair (assoc last-command-event auto-paren-matching-alist)))
+      (let ((pair
+             (if auto-paren-respect-syntax-table
+                 (let ((syntax (char-syntax last-command-event)))
+                   (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
+                         ((equal syntax ?\") (cons nil last-command-event))
+                         ((equal syntax ?\') (cons nil last-command-event))
+                         (t (assoc last-command-event auto-paren-matching-alist))))
+               (assoc last-command-event auto-paren-matching-alist))))
         (when (and pair (or auto-paren-on-word (not (looking-at "\\w"))))
           (save-excursion
             (let ((c-or-s (cdr pair)))
