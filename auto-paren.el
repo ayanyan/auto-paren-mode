@@ -75,6 +75,8 @@ a word in Auto Paren minor mode.")
 (defconst auto-paren-lisp-matching-alist
   '((?\( . ?\))
     (?\[ . ?\])
+    (?\')
+    (?\`)
     (?\" . ?\")))
 
 (defconst auto-paren-code-matching-alist
@@ -201,7 +203,7 @@ parenthesis is inserted."
   (run-hooks 'auto-paren-mode-hook))
 
 (defun auto-paren-self-insert (n)
-  "Insert a parentheses pair."
+  "Insert a character or maybe a pair of parentheses."
   (interactive "*p")
   (let ((escaped nil))
     (save-excursion
@@ -221,7 +223,6 @@ parenthesis is inserted."
                  (let ((syntax (char-syntax last-command-event)))
                    (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
                          ((equal syntax ?\") (cons nil last-command-event))
-                         ((equal syntax ?\') (cons nil last-command-event))
                          (t (assoc last-command-event auto-paren-matching-alist))))
                (assoc last-command-event auto-paren-matching-alist))))
         (when (and pair (or auto-paren-on-word (not (looking-at "\\w"))))
@@ -229,7 +230,7 @@ parenthesis is inserted."
             (let ((c-or-s (cdr pair)))
               (cond
                ((not c-or-s))
-               ((stringp c-or-s) (insert-string c-or-s))
+               ((stringp c-or-s) (insert c-or-s))
                (t (insert-char c-or-s 1))))))))))
 
 (provide 'auto-paren)
