@@ -215,12 +215,13 @@ parenthesis is inserted."
       (auto-paren-mode (if now 1 0)))
     (unless escaped
       (let ((pair
-             (if auto-paren-respect-syntax-table
-                 (let ((syntax (char-syntax last-command-event)))
-                   (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
-                         ((equal syntax ?\") (cons nil last-command-event))
-                         (t (assoc last-command-event auto-paren-matching-pairs))))
-               (assoc last-command-event auto-paren-matching-pairs))))
+             (or (if auto-paren-respect-syntax-table
+                     (let ((syntax (char-syntax last-command-event)))
+                       (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
+                             ((equal syntax ?\") (cons nil last-command-event))
+                             (t (assoc last-command-event auto-paren-matching-pairs))))
+                 (assoc last-command-event auto-paren-matching-pairs))
+                 (assoc last-command-event auto-paren-global-matching-pairs))))
         (when (and pair (or auto-paren-on-word (not (looking-at "\\w"))))
           (save-excursion
             (let ((c-or-s (cdr pair)))
