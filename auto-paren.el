@@ -51,7 +51,7 @@
 ;; You can customize the behavior on a specified major mode as
 ;; follows.
 ;;
-;; (setq auto-paren-major-mode-alist
+;; (setq auto-paren-matching-alist
 ;;       (cons
 ;;        '(your-favorite-major-mode
 ;;          (?\( . ?\))
@@ -59,7 +59,7 @@
 ;;          (?\" . ?\")
 ;;          (?\: . ?\;)
 ;;          (?/ . ?/))
-;;        auto-paren-major-mode-alist))
+;;        auto-paren-matching-alist))
 ;; (define-key auto-paren-mode-map ":" 'auto-paren-self-insert)
 ;; (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
 
@@ -72,14 +72,14 @@ a word in Auto Paren minor mode.")
 (defvar auto-paren-respect-syntax-table t
   "If non-nil, the current syntax table is respected.")
 
-(defconst auto-paren-lisp-matching-alist
+(defconst auto-paren-lisp-matching-pairs
   '((?\( . ?\))
     (?\[ . ?\])
     (?\')
     (?\`)
     (?\" . ?\")))
 
-(defconst auto-paren-code-matching-alist
+(defconst auto-paren-code-matching-pairs
   '((?\( . ?\))
     (?\[ . ?\])
     (?{ . ?})
@@ -87,57 +87,59 @@ a word in Auto Paren minor mode.")
     (?\` . ?\`)
     (?\" . ?\")))
 
-(defconst auto-paren-text-matching-alist
+(defconst auto-paren-text-matching-pairs
   '((?\( . ?\))
     (?\[ . ?\])
     (?{ . ?})
     (?\` . ?\')
     (?\" . ?\")))
 
-(defconst auto-paren-tex-matching-alist
+(defconst auto-paren-tex-matching-pairs
   (append
    '((?\[ . ?\])
      (?{ . ?})
      (?| . ?|)
      (?$ . ?$))
-   auto-paren-text-matching-alist))
+   auto-paren-text-matching-pairs))
 
-(defconst auto-paren-xml-matching-alist
+(defconst auto-paren-xml-matching-pairs
   (append
    '((?< . ?>)
      (?\" . ?\")
      (?& . ?\;))
-   auto-paren-text-matching-alist))
+   auto-paren-text-matching-pairs))
 
-(defvar auto-paren-matching-alist auto-paren-code-matching-alist)
+(defvar auto-paren-matching-pairs auto-paren-code-matching-pairs)
 
-(defvar auto-paren-major-mode-alist
-  `((lisp-mode . ,auto-paren-lisp-matching-alist)
+(defvar auto-paren-global-matching-pairs nil)
+
+(defvar auto-paren-matching-alist
+  `((lisp-mode . ,auto-paren-lisp-matching-pairs)
     (emacs-lisp-mode . lisp-mode)
     (scheme-mode . lisp-mode)
     (common-lisp-mode . lisp-mode)
     (lisp-interaction-mode . emacs-lisp-mode)
-    (sh-mode . ,auto-paren-code-matching-alist)
+    (sh-mode . ,auto-paren-code-matching-pairs)
     (makefile-mode . sh-mode)
     (makefile-bsdmake-mode . makefile-mode)
     (makefile-gmake-mode . makefile-mode)
-    (c-mode . ,auto-paren-code-matching-alist)
-    (ruby-mode . ,auto-paren-code-matching-alist)
-    (perl-mode . ,auto-paren-code-matching-alist)
+    (c-mode . ,auto-paren-code-matching-pairs)
+    (ruby-mode . ,auto-paren-code-matching-pairs)
+    (perl-mode . ,auto-paren-code-matching-pairs)
     (cperl-mode . perl-mode)
-    (caml-mode . ,auto-paren-code-matching-alist)
-    (sml-mode . ,auto-paren-code-matching-alist)
-    (haskel-mode . ,auto-paren-code-matching-alist)
+    (caml-mode . ,auto-paren-code-matching-pairs)
+    (sml-mode . ,auto-paren-code-matching-pairs)
+    (haskel-mode . ,auto-paren-code-matching-pairs)
     (c++-mode . c-mode)
-    (java-mode . ,auto-paren-code-matching-alist)
-    (js-mode . ,auto-paren-code-matching-alist)
-    (pascal-mode . ,auto-paren-code-matching-alist)
-    (text-mode . ,auto-paren-text-matching-alist)
-    (tex-mode . ,auto-paren-tex-matching-alist)
+    (java-mode . ,auto-paren-code-matching-pairs)
+    (js-mode . ,auto-paren-code-matching-pairs)
+    (pascal-mode . ,auto-paren-code-matching-pairs)
+    (text-mode . ,auto-paren-text-matching-pairs)
+    (tex-mode . ,auto-paren-tex-matching-pairs)
     (latex-mode . tex-mode)
     (bibtex-mode . tex-mode)
     (yatex-mode)
-    (xml-mode . ,auto-paren-xml-matching-alist)
+    (xml-mode . ,auto-paren-xml-matching-pairs)
     (sgml-mode . xml-mode)
     (html-mode . sgml-mode)
     (psgml-mode . sgml-mode)
@@ -193,26 +195,20 @@ parenthesis is inserted."
   nil
   " AutoCl"
   auto-paren-mode-map
-  (make-local-variable 'auto-paren-matching-alist)
+  (make-local-variable 'auto-paren-matching-pairs)
   (make-local-variable 'auto-paren-on-word)
   (make-local-variable 'auto-paren-respect-syntax-table)
-  (let ((pair (rec-assoc major-mode auto-paren-major-mode-alist)))
+  (let ((pair (rec-assoc major-mode auto-paren-matching-alist)))
     (if pair
-        (setq auto-paren-matching-alist (cdr pair))
-      (setq auto-paren-matching-alist auto-paren-code-matching-alist)))
+        (setq auto-paren-matching-pairs (cdr pair))
+      (setq auto-paren-matching-pairs auto-paren-code-matching-pairs)))
   (run-hooks 'auto-paren-mode-hook))
 
 (defun auto-paren-self-insert (n)
   "Insert a character or maybe a pair of parentheses."
   (interactive "*p")
-  (let ((escaped nil))
-    (save-excursion
-      (let ((matched t))
-        (while (and matched  (< (point-min) (point)))
-          (backward-char 1)
-          (if (looking-at "\\s\\")
-              (setq escaped (if escaped nil (match-string 0)))
-            (setq matched nil)))))
+  (let ((escaped
+         (save-excursion (not (zerop (% (skip-syntax-backward "\\") 2))))))
     (let ((now auto-paren-mode))
       (auto-paren-mode 0)
       (call-interactively (key-binding (char-to-string last-command-event)))
@@ -223,8 +219,8 @@ parenthesis is inserted."
                  (let ((syntax (char-syntax last-command-event)))
                    (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
                          ((equal syntax ?\") (cons nil last-command-event))
-                         (t (assoc last-command-event auto-paren-matching-alist))))
-               (assoc last-command-event auto-paren-matching-alist))))
+                         (t (assoc last-command-event auto-paren-matching-pairs))))
+               (assoc last-command-event auto-paren-matching-pairs))))
         (when (and pair (or auto-paren-on-word (not (looking-at "\\w"))))
           (save-excursion
             (let ((c-or-s (cdr pair)))
