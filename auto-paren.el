@@ -204,31 +204,44 @@ parenthesis is inserted."
       (setq auto-paren-matching-pairs auto-paren-code-matching-pairs)))
   (run-hooks 'auto-paren-mode-hook))
 
+(defun auto-paren-escapedp (&optional pos)
+  (if (not pos) (setq pos (point)))
+  (save-excursion
+    (goto-char pos)
+    (not (zerop (% (skip-syntax-backward "\\") 2)))))
+
+(defun auto-paren-match (char)
+  (and
+   char
+   (or (if auto-paren-respect-syntax-table
+           (let ((syntax (char-syntax char)))
+             (cond ((equal syntax ?\() (aref (syntax-table) char))
+                   ((equal syntax ?\") (cons nil char))
+                   (t (assoc char auto-paren-matching-pairs))))
+         (assoc char auto-paren-matching-pairs))
+       (assoc char auto-paren-global-matching-pairs))))
+
+(defun auto-paren-post-insert (char)
+  (let ((pair (auto-paren-match char)))
+    (when pair
+      (let ((c-or-s (cdr pair)))
+        (cond
+         ((not c-or-s))
+         ((stringp c-or-s) (insert c-or-s))
+         (t (insert-char c-or-s 1)))))))
+
 (defun auto-paren-self-insert (n)
   "Insert a character or maybe a pair of parentheses."
   (interactive "*p")
-  (let ((escaped
-         (save-excursion (not (zerop (% (skip-syntax-backward "\\") 2))))))
+  (let ((escaped (auto-paren-escapedp)))
     (let ((now auto-paren-mode))
       (auto-paren-mode 0)
       (call-interactively (key-binding (char-to-string last-command-event)))
       (auto-paren-mode (if now 1 0)))
-    (unless escaped
-      (let ((pair
-             (or (if auto-paren-respect-syntax-table
-                     (let ((syntax (char-syntax last-command-event)))
-                       (cond ((equal syntax ?\() (aref (syntax-table) last-command-event))
-                             ((equal syntax ?\") (cons nil last-command-event))
-                             (t (assoc last-command-event auto-paren-matching-pairs))))
-                 (assoc last-command-event auto-paren-matching-pairs))
-                 (assoc last-command-event auto-paren-global-matching-pairs))))
-        (when (and pair (or auto-paren-on-word (not (looking-at "\\w"))))
-          (save-excursion
-            (let ((c-or-s (cdr pair)))
-              (cond
-               ((not c-or-s))
-               ((stringp c-or-s) (insert c-or-s))
-               (t (insert-char c-or-s 1))))))))))
+    (when (and (not escaped)
+               (or auto-paren-on-word (not (looking-at "\\w"))))
+      (save-excursion
+        (auto-paren-post-insert last-command-event)))))
 
 (provide 'auto-paren)
 
