@@ -174,7 +174,8 @@ a word in Auto Paren minor mode.")
   (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "+" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "=" 'auto-paren-self-insert))
+  (define-key auto-paren-mode-map "=" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "\C-c)" 'auto-paren-close-all))
 
 (defvar auto-paren-mode-hook nil)
 
@@ -242,6 +243,30 @@ parenthesis is inserted."
                (or auto-paren-on-word (not (looking-at "\\w"))))
       (save-excursion
         (auto-paren-post-insert last-command-event)))))
+
+(defun auto-paren-close-any ()
+  (interactive)
+  (if (auto-paren-escapedp)
+      nil
+    (let ((char
+           (save-excursion
+             (let ((level 0))
+               (while (and (<= 0 level) (skip-syntax-backward "^()") (< (point-min) (point)))
+                 (backward-char 1)
+                 (unless (auto-paren-escapedp)
+                   (let ((syntax (char-syntax (char-after))))
+                     (setq level (+ level
+                                    (cond ((equal syntax ?\() -1)
+                                          ((equal syntax ?\)) 1)))))))
+               (if (< level 0) (char-after) nil)))))
+      (auto-paren-post-insert char)
+      char)))
+
+(defun auto-paren-close-all ()
+  (interactive)
+  (let ((char (auto-paren-close-any)))
+    (if char
+        (auto-paren-close-all))))
 
 (provide 'auto-paren)
 
