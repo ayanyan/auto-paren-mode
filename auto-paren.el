@@ -225,11 +225,12 @@ parenthesis is inserted."
 (defun auto-paren-post-insert (char)
   (let ((pair (auto-paren-match char)))
     (when pair
-      (let ((c-or-s (cdr pair)))
+      (let ((obj (cdr pair)))
         (cond
-         ((not c-or-s))
-         ((stringp c-or-s) (insert c-or-s))
-         (t (insert-char c-or-s 1)))))))
+         ((not obj))
+         ((stringp obj) (insert obj))
+         ((characterp obj) (insert-char obj 1))
+         ((functionp obj) (apply obj)))))))
 
 (defun auto-paren-self-insert (n)
   "Insert a character or maybe a pair of parentheses."
@@ -244,29 +245,37 @@ parenthesis is inserted."
       (save-excursion
         (auto-paren-post-insert last-command-event)))))
 
-(defun auto-paren-close-any ()
+(defun auto-paren-skip-backward (&optional level)
+  (if (not level) (setq level 1))
+  (cond ((<= level 0) (point))
+        (t
+         (skip-syntax-backward "^()")
+         (if (= (point-min) (point))
+             nil
+           (backward-char)
+           (if (auto-paren-escapedp)
+               (auto-paren-skip-backward level)
+             (let ((syntax (char-syntax (char-after))))
+             (cond ((equal syntax ?\() (auto-paren-skip-backward (- level 1)))
+                   ((equal syntax ?\)) (auto-paren-skip-backward (+ level 1))))))))))
+
+(defun auto-paren-close-any (&optional equiv)
   (interactive)
+  (if (not equiv) (setq equiv (point)))
   (if (auto-paren-escapedp)
       nil
-    (let ((char
-           (save-excursion
-             (let ((level 0))
-               (while (and (<= 0 level) (skip-syntax-backward "^()") (< (point-min) (point)))
-                 (backward-char 1)
-                 (unless (auto-paren-escapedp)
-                   (let ((syntax (char-syntax (char-after))))
-                     (setq level (+ level
-                                    (cond ((equal syntax ?\() -1)
-                                          ((equal syntax ?\)) 1)))))))
-               (if (< level 0) (char-after) nil)))))
-      (auto-paren-post-insert char)
-      char)))
+    (let ((pos (save-excursion
+                 (goto-char equiv)
+                 (auto-paren-skip-backward 1))))
+      (if pos (auto-paren-post-insert (char-after pos)))
+      pos)))
 
-(defun auto-paren-close-all ()
+(defun auto-paren-close-all (&optional equiv)
   (interactive)
-  (let ((char (auto-paren-close-any)))
-    (if char
-        (auto-paren-close-all))))
+  (if (not equiv) (setq equiv (point)))
+  (let ((equiv (auto-paren-close-any equiv)))
+    (if equiv
+        (auto-paren-close-all equiv))))
 
 (provide 'auto-paren)
 
