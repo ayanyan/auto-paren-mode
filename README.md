@@ -6,7 +6,7 @@ This software provides a minor mode in Emacs.
 
 * When you type an opening parenthesis, a closing parenthesis is automatically inserted depending on the current major mode.
 
-* Typing `\\C-c)` closes all opened expressions.
+* Typing `\C-c)` closes all opened expressions.
 
 * The minor mode can be used with any major mode in programming.
 
@@ -18,8 +18,6 @@ This software provides a minor mode in Emacs.
 
 1. Put the file into one of your load-paths.
 
-2. Write the following code in your init-file and restart Emacs.
-
-    (require 'auto-paren)
+2. Write `(require 'auto-paren)` in your init-file and restart Emacs.
 
 3. Execute `auto-paren-mode` in your buffer.
