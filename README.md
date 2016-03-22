@@ -14,7 +14,7 @@ This software provides a minor mode in Emacs.
 
 * Electric Pair mode provided in Emacs 24 or later is maybe better for some people.
 
-## Simple Usage
+## Quick Start
 
 1. Put the file into one of your load-paths.
 
