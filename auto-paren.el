@@ -48,6 +48,11 @@
 ;;   (lambda ()
 ;;     (auto-paren-mode 1)))
 ;;
+;; Or you can write the following line so that the mode is activated
+;; by default in any buffer.
+;;
+;; (setq-default auto-paren-mode t)
+;;
 ;; You can customize the behavior on a specified major mode as
 ;; follows.
 ;;
