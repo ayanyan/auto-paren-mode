@@ -175,6 +175,7 @@ a word in Auto Paren minor mode.")
   (define-key auto-paren-mode-map "+" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "=" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "\C-c\C-t" 'auto-paren-toggle-on-word)
   (define-key auto-paren-mode-map "\C-c)" 'auto-paren-close-all))
 
 (defvar auto-paren-mode-hook nil)
@@ -204,6 +205,12 @@ parenthesis is inserted."
         (setq auto-paren-matching-pairs (cdr pair))
       (setq auto-paren-matching-pairs auto-paren-code-matching-pairs)))
   (run-hooks 'auto-paren-mode-hook))
+
+(defun auto-paren-toggle-on-word ()
+  "Toggle the value of `auto-paren-on-word'."
+  (interactive)
+  (setq auto-paren-on-word (not auto-paren-on-word))
+  (message (if auto-paren-on-word "enabled" "disabled")))
 
 (defun auto-paren-escapedp (&optional pos)
   (if (not pos) (setq pos (point)))
