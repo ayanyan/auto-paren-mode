@@ -21,3 +21,7 @@ This software provides a minor mode in Emacs.
 2. Write `(require 'auto-paren)` in your init-file and restart Emacs.
 
 3. Execute `auto-paren-mode` in your buffer.
+
+## Copyright Notice
+
+Follow GPL v2 or later.
