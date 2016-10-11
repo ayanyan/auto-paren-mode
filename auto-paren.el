@@ -171,6 +171,9 @@ a word in Auto Paren minor mode.")
         (rec-assoc (cdr pair) alist)
       pair)))
 
+(unless (fboundp 'characterp)
+  (defalias 'characterp 'char-valid-p))
+
 (define-minor-mode auto-paren-mode
   "Toggle Auto Paren minor mode.
 With ARG, turn the mode off if and only if ARG is a non-positive
