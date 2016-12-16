@@ -10,14 +10,14 @@
 (setq-default auto-paren-mode t)
 
 ;;; Customization
-(setq auto-paren-matching-alist
-      (cons
-       '(your-favorite-major-mode
-         (?\( . ?\))
-         (?{ . ?})
-         (?\" . ?\")
-         (?\: . ?\;)
-         (?/ . ?/))
-       auto-paren-matching-alist))
+(add-to-list 'auto-paren-matching-alist
+             '(your-favorite-major-mode
+               (?\( . ?\))
+               (?{ . ?})
+               (?\" . ?\")
+               (?\: . ";;") ; a string may be inserted
+               (?& . your-function) ; a function may be called
+               (?/ . ?/)))
 (define-key auto-paren-mode-map ":" 'auto-paren-self-insert)
+(define-key auto-paren-mode-map "&" 'auto-paren-self-insert)
 (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
