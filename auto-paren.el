@@ -141,7 +141,7 @@ a word in Auto Paren minor mode.")
     (css-mode . html-mode)
     (yatex-mode)
     (yahtml-mode)
-    (markdown-mode . text-mode)
+    (markdown-mode . ,auto-paren-code-matching-pairs)
     (fundamental-mode . text-mode)))
 
 (defvar auto-paren-mode-map nil
