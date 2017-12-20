@@ -17,7 +17,7 @@
                (?\" . ?\")
                (?\: . ";;") ; a string may be inserted
                (?& . your-function) ; a function may be called
-               (?/ . ?/)))
+               (?+ . ?+)))
 (define-key auto-paren-mode-map ":" 'auto-paren-self-insert)
 (define-key auto-paren-mode-map "&" 'auto-paren-self-insert)
-(define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
+(define-key auto-paren-mode-map "+" 'auto-paren-self-insert)

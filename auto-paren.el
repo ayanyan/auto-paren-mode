@@ -73,6 +73,12 @@ a word in Auto Paren minor mode.")
     (?\` . ?\`)
     (?\" . ?\")))
 
+(defconst auto-paren-ruby-matching-pairs
+  (append
+   '((?| . ?|)
+     (?/ . ?/))
+   auto-paren-code-matching-pairs))
+
 (defconst auto-paren-text-matching-pairs
   '((?\( . ?\))
     (?\[ . ?\])
@@ -114,7 +120,7 @@ a word in Auto Paren minor mode.")
     (java-mode . c-mode)
     (perl-mode . ,auto-paren-code-matching-pairs)
     (cperl-mode . perl-mode)
-    (ruby-mode . perl-mode)
+    (ruby-mode . ,auto-paren-ruby-matching-pairs)
     (caml-mode . ,auto-paren-lisp-matching-pairs)
     (tuareg-mode . caml-mode)
     (sml-mode . caml-mode)
@@ -167,8 +173,7 @@ a word in Auto Paren minor mode.")
   (define-key auto-paren-mode-map "%" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "&" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "*" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "+" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "\C-c\C-t" 'auto-paren-toggle-on-word)
   (define-key auto-paren-mode-map "\C-c)" 'auto-paren-close-all))
 
