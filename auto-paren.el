@@ -256,19 +256,19 @@ parenthesis is inserted."
 
 (defun auto-paren-skip-backward (&optional level)
   (if (not level) (setq level 1))
-  (cond ((<= level 0) (point))
-        (t
-         (skip-syntax-backward "^()")
-         (if (= (point-min) (point))
-             nil
-           (backward-char)
-           (if (auto-paren-escapedp)
-               (auto-paren-skip-backward level)
-             (let ((syntax (char-syntax (char-after))))
-             (cond ((equal syntax ?\() (auto-paren-skip-backward (- level 1)))
-                   ((equal syntax ?\)) (auto-paren-skip-backward (+ level 1))))))))))
+  (while (and (< 0 level) (< (point-min) (point)))
+    (skip-syntax-backward "^()")
+    (if (= (point-min) (point))
+        nil
+      (backward-char)
+      (unless (auto-paren-escapedp)
+        (let ((syntax (char-syntax (char-after))))
+          (cond ((equal syntax ?\() (setq level (- level 1)))
+                ((equal syntax ?\)) (setq level (+ level 1))))))))
+  (if (<= level 0) (point) nil))
 
 (defun auto-paren-close-any (&optional equiv)
+  "Guess a closing parenthesis at point and insert it."
   (interactive)
   (if (not equiv) (setq equiv (point)))
   (if (auto-paren-escapedp)
@@ -280,6 +280,8 @@ parenthesis is inserted."
       pos)))
 
 (defun auto-paren-close-all (&optional equiv)
+  "Insert all closing parentheses necessary at point.
+This function guesses wrong when an unmatched parenthesis occurs in a string data."
   (interactive)
   (if (not equiv) (setq equiv (point)))
   (let ((equiv (auto-paren-close-any equiv)))
