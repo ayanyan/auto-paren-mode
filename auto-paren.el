@@ -265,7 +265,7 @@ parenthesis is inserted."
         (let ((syntax (char-syntax (char-after))))
           (cond ((equal syntax ?\() (setq level (- level 1)))
                 ((equal syntax ?\)) (setq level (+ level 1))))))))
-  (if (<= level 0) (point) nil))
+  (and (<= level 0) (point)))
 
 (defun auto-paren-close-any (&optional equiv)
   "Guess a closing parenthesis at point and insert it."
