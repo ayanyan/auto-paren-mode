@@ -55,7 +55,8 @@
 a word in Auto Paren minor mode.")
 
 (defvar auto-paren-respect-syntax-table t
-  "If non-nil, the current syntax table is respected.")
+  "If non-nil, the current syntax table is respected in Auto
+  Paren minor mode.")
 
 (defconst auto-paren-lisp-matching-pairs
   '((?\( . ?\))
@@ -72,6 +73,11 @@ a word in Auto Paren minor mode.")
     (?\' . ?\')
     (?\` . ?\`)
     (?\" . ?\")))
+
+(defconst auto-paren-shell-matching-pairs
+  (append
+   '((?\[ . " \]"))
+   auto-paren-code-matching-pairs))
 
 (defconst auto-paren-ruby-matching-pairs
   (append
@@ -98,12 +104,14 @@ a word in Auto Paren minor mode.")
   (append
    '((?< . ?>)
      (?\" . ?\")
-     (?& . ?\;))
+     (?& . ";"))
    auto-paren-text-matching-pairs))
 
 (defvar auto-paren-matching-pairs auto-paren-code-matching-pairs)
 
-(defvar auto-paren-global-matching-pairs nil)
+(defvar auto-paren-global-matching-pairs nil
+  "List of key pairs, which is available in any major mode with
+Auto Paren minor mode.")
 
 (defvar auto-paren-matching-alist
   `((lisp-mode . ,auto-paren-lisp-matching-pairs)
@@ -111,7 +119,7 @@ a word in Auto Paren minor mode.")
     (scheme-mode . lisp-mode)
     (common-lisp-mode . lisp-mode)
     (lisp-interaction-mode . emacs-lisp-mode)
-    (sh-mode . ,auto-paren-code-matching-pairs)
+    (sh-mode . ,auto-paren-shell-matching-pairs)
     (makefile-mode . sh-mode)
     (makefile-bsdmake-mode . makefile-mode)
     (makefile-gmake-mode . makefile-mode)
@@ -148,7 +156,11 @@ a word in Auto Paren minor mode.")
     (yatex-mode)
     (yahtml-mode)
     (markdown-mode . ,auto-paren-code-matching-pairs)
-    (fundamental-mode . text-mode)))
+    (fundamental-mode . text-mode))
+  "Alist of major mode names and lists of key pairs.  A key pair
+consists of an opening parenthesis and its associated closing
+parenthesis.  A closing parenthesis may be a string or a function
+without argument.")
 
 (defvar auto-paren-mode-map nil
   "Keymap for Auto Paren minor mode.")
@@ -223,12 +235,13 @@ parenthesis is inserted."
 (defun auto-paren-match (char)
   (and
    char
-   (or (if auto-paren-respect-syntax-table
+   (or (assoc char auto-paren-matching-pairs)
+       (if auto-paren-respect-syntax-table
            (let ((syntax (char-syntax char)))
              (cond ((equal syntax ?\() (aref (syntax-table) char))
                    ((equal syntax ?\") (cons nil char))
-                   (t (assoc char auto-paren-matching-pairs))))
-         (assoc char auto-paren-matching-pairs))
+                   (t nil)))
+         nil)
        (assoc char auto-paren-global-matching-pairs))))
 
 (defun auto-paren-post-insert (char)
@@ -280,8 +293,9 @@ parenthesis is inserted."
       pos)))
 
 (defun auto-paren-close-all (&optional equiv)
-  "Insert all closing parentheses necessary at point.
-This function guesses wrong when an unmatched parenthesis occurs in a string data."
+  "Insert all closing parentheses necessary at point.  This
+function guesses wrong when an unmatched parenthesis occurs in a
+string data."
   (interactive)
   (if (not equiv) (setq equiv (point)))
   (let ((equiv (auto-paren-close-any equiv)))
