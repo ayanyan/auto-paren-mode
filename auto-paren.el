@@ -104,7 +104,8 @@ a word in Auto Paren minor mode.")
   (append
    '((?< . ?>)
      (?\" . ?\")
-     (?& . ";"))
+     (?& . ";")
+     (?/ . auto-paren-nxml-remove-double-closer))
    auto-paren-text-matching-pairs))
 
 (defvar auto-paren-matching-pairs auto-paren-code-matching-pairs)
@@ -301,6 +302,14 @@ string data."
   (let ((equiv (auto-paren-close-any equiv)))
     (if equiv
         (auto-paren-close-all equiv))))
+
+(defun auto-paren-nxml-remove-double-closer ()
+  "Remove an unexpectedly inserted \">\"."
+  (when (and (equal (char-before) ?>)
+             (equal (char-after) ?>))
+    (delete-char 1)
+    (let ((tab-always-indent t))
+      (indent-for-tab-command))))
 
 (provide 'auto-paren)
 
