@@ -74,6 +74,11 @@ a word in Auto Paren minor mode.")
     (?\` . ?\`)
     (?\" . ?\")))
 
+(defconst auto-paren-code-with-regex-matching-pairs
+  (append
+   '((?/ . ?/))
+   auto-paren-code-matching-pairs))
+
 (defconst auto-paren-shell-matching-pairs
   (append
    '((?\[ . " \]"))
@@ -81,9 +86,8 @@ a word in Auto Paren minor mode.")
 
 (defconst auto-paren-ruby-matching-pairs
   (append
-   '((?| . ?|)
-     (?/ . ?/))
-   auto-paren-code-matching-pairs))
+   '((?| . ?|))
+   auto-paren-code-with-regex-matching-pairs))
 
 (defconst auto-paren-text-matching-pairs
   '((?\( . ?\))
@@ -130,12 +134,13 @@ Auto Paren minor mode.")
     (perl-mode . ,auto-paren-code-matching-pairs)
     (cperl-mode . perl-mode)
     (ruby-mode . ,auto-paren-ruby-matching-pairs)
+    (python-mode . ,auto-paren-code-matching-pairs)
+    (js-mode . ,auto-paren-code-with-regex-matching-pairs)
     (caml-mode . ,auto-paren-lisp-matching-pairs)
     (tuareg-mode . caml-mode)
     (sml-mode . caml-mode)
     (haskel-mode . ,auto-paren-lisp-matching-pairs)
     (coq-mode . ,auto-paren-lisp-matching-pairs)
-    (js-mode . ,auto-paren-code-matching-pairs)
     (coffee-mode . js-mode)
     (pascal-mode . ,auto-paren-code-matching-pairs)
     (fortran-mode . ,auto-paren-code-matching-pairs)
@@ -152,7 +157,7 @@ Auto Paren minor mode.")
     (psgml-mode . sgml-mode)
     (nxml-mode . xml-mode)
     (rhtml-mode . html-mode)
-    (web-mode . html-mode)
+    (web-mode . ,auto-paren-code-matching-pairs)
     (css-mode . html-mode)
     (yatex-mode)
     (yahtml-mode)
