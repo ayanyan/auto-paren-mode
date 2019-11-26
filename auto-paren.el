@@ -93,16 +93,16 @@ a word in Auto Paren minor mode.")
   '((?\( . ?\))
     (?\[ . ?\])
     (?{ . ?})
-    (?\` . ?\')
+    (?\` . auto-paren-replace-and-insert-quotes)
     (?\" . ?\")))
 
 (defconst auto-paren-tex-matching-pairs
-  (append
-   '((?\[ . ?\])
-     (?{ . ?})
-     (?| . ?|)
-     (?$ . ?$))
-   auto-paren-text-matching-pairs))
+  '((?\( . ?\))
+    (?\[ . ?\])
+    (?{ . ?})
+    (?$ . ?$)
+    (?\` . ?\')
+    (?| . ?|)))
 
 (defconst auto-paren-xml-matching-pairs
   (append
@@ -317,6 +317,24 @@ string data."
     (delete-char 1)
     (let ((tab-always-indent t))
       (indent-for-tab-command))))
+
+(defun auto-paren-replace-and-insert-quotes ()
+  "Insert quotation marks from ascii."
+  (backward-char)
+  (cond
+   ((and (equal (char-after) ?\`) (equal (char-before) ?\‘) (equal (char-after (+ (point) 1)) ?\’))
+    (backward-char)
+    (insert-char ?“ 1)
+    (delete-char 3)
+    (insert-char ?” 1))
+   ((equal (char-after) ?\`)
+    (insert-char ?‘ 1)
+    (delete-char 1)
+    (insert-char ?’ 1))
+   ((equal (char-before) ?\")
+    (insert-char ?“ 1)
+    (delete-char 1)
+    (insert-char ?” 1))))
 
 (provide 'auto-paren)
 
