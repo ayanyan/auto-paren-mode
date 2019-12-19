@@ -260,7 +260,7 @@ parenthesis is inserted."
          ((not obj))
          ((stringp obj) (insert obj))
          ((characterp obj) (insert-char obj 1))
-         ((functionp obj) (apply obj nil)))))))
+         ((functionp obj) (apply obj (list char))))))))
 
 (defun auto-paren-self-insert (n)
   "Insert a character or maybe a pair of parentheses."
@@ -310,7 +310,7 @@ string data."
     (if equiv
         (auto-paren-close-all equiv))))
 
-(defun auto-paren-nxml-remove-double-closer ()
+(defun auto-paren-nxml-remove-double-closer (&optional char)
   "Remove an unexpectedly inserted \">\"."
   (when (and (equal (char-before) ?>)
              (equal (char-after) ?>))
@@ -318,23 +318,25 @@ string data."
     (let ((tab-always-indent t))
       (indent-for-tab-command))))
 
-(defun auto-paren-replace-and-insert-quotes ()
+(defun auto-paren-replace-and-insert-quotes (char)
   "Insert quotation marks from ascii."
   (backward-char)
   (cond
-   ((and (equal (char-after) ?\`) (equal (char-before) ?\‘) (equal (char-after (+ (point) 1)) ?\’))
+   ((and (equal char ?\`) (equal (char-before) ?\‘) (equal (char-after (+ (point) 1)) ?\’))
     (backward-char)
     (insert-char ?“ 1)
     (delete-char 3)
     (insert-char ?” 1))
-   ((equal (char-after) ?\`)
+   ((equal char ?\`)
     (insert-char ?‘ 1)
     (delete-char 1)
     (insert-char ?’ 1))
-   ((equal (char-before) ?\")
+   ((equal char ?\")
     (insert-char ?“ 1)
     (delete-char 1)
-    (insert-char ?” 1))))
+    (insert-char ?” 1))
+   (t
+    (forward-char))))
 
 (provide 'auto-paren)
 
