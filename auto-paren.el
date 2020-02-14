@@ -94,6 +94,7 @@ a word in Auto Paren minor mode.")
     (?\[ . ?\])
     (?{ . ?})
     (?\` . auto-paren-replace-and-insert-quotes)
+    (?- . auto-paren-replace-dash)
     (?\" . ?\")))
 
 (defconst auto-paren-tex-matching-pairs
@@ -194,6 +195,7 @@ without argument.")
   (define-key auto-paren-mode-map "&" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "*" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
+  (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "\C-c\C-t" 'auto-paren-toggle-on-word)
   (define-key auto-paren-mode-map "\C-c)" 'auto-paren-close-all))
 
@@ -246,8 +248,8 @@ parenthesis is inserted."
    (or (assoc char auto-paren-matching-pairs)
        (if auto-paren-respect-syntax-table
            (let ((syntax (char-syntax char)))
-             (cond ((equal syntax ?\() (aref (syntax-table) char))
-                   ((equal syntax ?\") (cons nil char))
+             (cond ((equal ?\( syntax) (aref (syntax-table) char))
+                   ((equal ?\" syntax) (cons nil char))
                    (t nil)))
          nil)
        (assoc char auto-paren-global-matching-pairs))))
@@ -284,8 +286,8 @@ parenthesis is inserted."
       (backward-char)
       (unless (auto-paren-escapedp)
         (let ((syntax (char-syntax (char-after))))
-          (cond ((equal syntax ?\() (setq level (- level 1)))
-                ((equal syntax ?\)) (setq level (+ level 1))))))))
+          (cond ((equal ?\( syntax) (setq level (- level 1)))
+                ((equal ?\) syntax) (setq level (+ level 1))))))))
   (and (<= level 0) (point)))
 
 (defun auto-paren-close-any (&optional equiv)
@@ -312,8 +314,8 @@ string data."
 
 (defun auto-paren-nxml-remove-double-closer (&optional char)
   "Remove an unexpectedly inserted \">\"."
-  (when (and (equal (char-before) ?>)
-             (equal (char-after) ?>))
+  (when (and (equal ?> (char-before))
+             (equal ?> (char-after)))
     (delete-char 1)
     (let ((tab-always-indent t))
       (indent-for-tab-command))))
@@ -322,19 +324,30 @@ string data."
   "Insert quotation marks from ascii."
   (backward-char)
   (cond
-   ((and (equal char ?\`) (equal (char-before) ?\‘) (equal (char-after (+ (point) 1)) ?\’))
+   ((and (equal ?\` char) (equal ?\‘ (char-before)) (equal ?\’ (char-after (+ (point) 1))))
     (backward-char)
-    (insert-char ?“ 1)
+    (insert "“")
     (delete-char 3)
-    (insert-char ?” 1))
-   ((equal char ?\`)
-    (insert-char ?‘ 1)
+    (insert "”"))
+   ((equal ?\` char)
+    (insert "‘")
     (delete-char 1)
-    (insert-char ?’ 1))
-   ((equal char ?\")
-    (insert-char ?“ 1)
+    (insert "’"))
+   ((equal ?\" char)
+    (insert "“")
     (delete-char 1)
-    (insert-char ?” 1))
+    (insert "”"))
+   (t
+    (forward-char))))
+
+(defun auto-paren-replace-dash (char)
+  "Insert dash symbols from ascii."
+  (backward-char)
+  (cond
+   ((and (equal ?- char) (equal ?- (char-before)))
+    (backward-char)
+    (insert "—")
+    (delete-char 2))
    (t
     (forward-char))))
 
