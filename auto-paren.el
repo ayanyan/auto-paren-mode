@@ -165,6 +165,7 @@ Auto Paren minor mode.")
     (yatex-mode)
     (yahtml-mode)
     (markdown-mode . ,auto-paren-code-matching-pairs)
+    (org-mode . ,auto-paren-shell-matching-pairs)
     (fundamental-mode . text-mode))
   "Alist of major mode names and lists of key pairs.  A key pair
 consists of an opening parenthesis and its associated closing
@@ -196,7 +197,6 @@ without argument.")
   (define-key auto-paren-mode-map "*" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "/" 'auto-paren-self-insert)
   (define-key auto-paren-mode-map "-" 'auto-paren-self-insert)
-  (define-key auto-paren-mode-map "\C-c\C-t" 'auto-paren-toggle-on-word)
   (define-key auto-paren-mode-map "\C-c)" 'auto-paren-close-all))
 
 (defvar auto-paren-mode-hook nil)
