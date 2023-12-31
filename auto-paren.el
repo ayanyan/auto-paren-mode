@@ -218,9 +218,10 @@ number.
 When the mode is enabled, the corresponding closing parenthesis
 is automatically inserted immediately after an opening
 parenthesis is inserted."
-  nil
-  " AutoCl"
-  auto-paren-mode-map
+  :global nil
+  :init-value nil
+  :lighter " AutoCl"
+  :keymap auto-paren-mode-map
   (make-local-variable 'auto-paren-matching-pairs)
   (make-local-variable 'auto-paren-on-word)
   (make-local-variable 'auto-paren-respect-syntax-table)
