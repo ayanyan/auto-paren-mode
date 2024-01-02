@@ -220,7 +220,7 @@ is automatically inserted immediately after an opening
 parenthesis is inserted."
   :global nil
   :init-value nil
-  :lighter " AutoCl"
+  :lighter " (..)"
   :keymap auto-paren-mode-map
   (make-local-variable 'auto-paren-matching-pairs)
   (make-local-variable 'auto-paren-on-word)
