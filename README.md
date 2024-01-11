@@ -31,4 +31,4 @@ This software provides a minor mode in Emacs.
 
 ## Copyright Notice
 
-Follow GPL v2 or later.
+Follow GPL v3 or later.
