@@ -1,3 +1,9 @@
+;;; Installation by `straight.el'
+(use-package auto-paren
+  :straight (:host github :repo "ayanyan/auto-paren-mode")
+  :diminish (auto-paren-mode . " 閉")
+  :commands (auto-paren-mode))
+
 ;;; Load
 (require 'auto-paren)
 
@@ -14,7 +20,7 @@
              '(your-favorite-major-mode
                (?\( . ?\))
                (?{ . ?})
-               (?\" . ?\")
+               (?\' . nil) ; nothing inserted
                (?\: . ";;") ; a string may be inserted
                (?& . your-function) ; a function may be called
                (?+ . ?+)))

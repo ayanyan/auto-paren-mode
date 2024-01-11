@@ -22,6 +22,13 @@ This software provides a minor mode in Emacs.
 
 3. Execute `auto-paren-mode` in your buffer.
 
+0. Instead of the above steps 1-2, you can use `straight.el`.
+```
+(use-package auto-paren
+  :straight (:host github :repo "ayanyan/auto-paren-mode")
+  :commands (auto-paren-mode))
+```
+
 ## Copyright Notice
 
 Follow GPL v2 or later.
