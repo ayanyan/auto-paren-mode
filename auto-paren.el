@@ -243,6 +243,7 @@ parenthesis is inserted."
 
 (defun auto-paren-match (char)
   (and
+   (not (minibufferp))
    char
    (or (assoc char auto-paren-matching-pairs)
        (if auto-paren-respect-syntax-table
