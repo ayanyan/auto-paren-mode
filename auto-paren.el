@@ -163,7 +163,8 @@ Auto Paren minor mode.")
     (yatex-mode)
     (yahtml-mode)
     (markdown-mode . ,auto-paren-code-matching-pairs)
-    (org-mode . ,auto-paren-shell-matching-pairs)
+    (gfm-mode . markdown-mode)
+    (org-mode . ,auto-paren-code-matching-pairs)
     (fundamental-mode . sh-mode))
   "Alist of major mode names and lists of key pairs.  A key pair
 consists of an opening parenthesis and its associated closing
